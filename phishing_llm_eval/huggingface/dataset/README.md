@@ -111,7 +111,7 @@ Repeated 22 times per model. Forced-choice ⇒ unbiased model would pick each pe
 
 - **Generation.** All 14 model configurations are accessed through OpenAI-compatible chat-completion APIs on each provider's free tier.
 - **Parsing.** Free-text outputs are parsed into structured JSON by Mistral Small at T = 0.0. Parsing errors are logged and skipped, never invented.
-- **Provenance.** Full collection / parsing pipeline at <https://github.com/Julia569922/phishing-llm-bias-audit>.
+- **Provenance.** Full collection / parsing pipeline at <https://github.com/jujuliaa12/phishing-llm-bias-audit>.
 
 ## Considerations for using the data
 
@@ -157,7 +157,7 @@ MIT. Free for research and educational use. Please cite when redistributing.
 ```bibtex
 @misc{llm_phishing_bias_audit_2026,
   title  = {LLM Phishing-Vulnerability Bias Audit},
-  author = {Tseng},
+  author = {jujuliaa12},
   year   = {2026},
   howpublished = {Hugging Face Datasets},
   note   = {Multi-provider empirical study of demographic bias in
@@ -165,4 +165,4 @@ MIT. Free for research and educational use. Please cite when redistributing.
 }
 ```
 
-Full write-up: `docs/paper.pdf` in the source repository.
+Full methodology and findings: `docs/methodology.md`, `docs/findings.md`, `docs/insights.md` in the source repository.

@@ -308,7 +308,7 @@ with tab_drilldown:
 
 st.divider()
 st.caption(
-    "Source code: github.com/Julia569922/phishing-llm-bias-audit · "
+    "Source code: github.com/jujuliaa12/phishing-llm-bias-audit · "
     "Dataset: results/dataset.csv · "
     "Findings: docs/findings.md"
 )

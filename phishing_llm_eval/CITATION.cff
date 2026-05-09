@@ -1,10 +1,9 @@
 cff-version: 1.2.0
 title: "LLM Phishing-Vulnerability Bias Audit"
-message: "If you use this dataset, code, or findings, please cite the accompanying paper (docs/paper.pdf)."
+message: "If you use this dataset, code, or findings, please cite this repository."
 type: software
 authors:
-  - family-names: "Tseng"
-    given-names: "Author"
+  - alias: "jujuliaa12"
 abstract: >-
   A multi-provider empirical study of demographic bias in open-source LLMs when
   asked to assess phishing vulnerability. 855 persona records across 14 model-

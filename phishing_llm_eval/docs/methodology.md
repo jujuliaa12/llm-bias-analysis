@@ -1,6 +1,6 @@
 # Methodology
 
-Compact reference for how the dataset was produced and how the statistics were computed. The full discussion (with citations) is in `paper.pdf`.
+Compact reference for how the dataset was produced and how the statistics were computed.
 
 ## Experimental design
 

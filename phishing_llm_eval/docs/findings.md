@@ -1,6 +1,6 @@
 # Findings
 
-Synthesis of the bias patterns surfaced by the audit. Numbers come from `results/analysis_summary.csv`, `results/dataset.csv`, and the per-axis cells in `notebooks/02_analysis.ipynb`. The full write-up with citations is in `paper.pdf`.
+Synthesis of the bias patterns surfaced by the audit. Numbers come from `results/analysis_summary.csv`, `results/dataset.csv`, and the per-axis cells in `notebooks/02_analysis.ipynb`.
 
 The unifying claim: **the bias is implicit, not linguistic.** Toxicity scores are near zero across all 14 model–provider configurations, and gender is almost never explicitly named in the model's stated reasoning. The bias appears only when you tally *which* persona gets selected. That makes it harder to detect with the language-level safeguards (toxicity classifiers, refusal training) that providers ship.
 

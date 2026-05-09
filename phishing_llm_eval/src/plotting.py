@@ -1,7 +1,7 @@
 """Plot helpers used in `notebooks/02_analysis.ipynb`.
 
-Functions here are deliberately thin: they reproduce the figures that appear
-in the paper (`docs/paper.pdf`) without changing palette, axes, or layout.
+Functions here are deliberately thin: they reproduce the figures shipped in
+`figures/` without changing palette, axes, or layout.
 """
 from __future__ import annotations
 

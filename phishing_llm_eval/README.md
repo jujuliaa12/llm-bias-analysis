@@ -174,8 +174,7 @@ phishing_llm_eval/
     ├── methodology.md         ← experimental protocol
     ├── model_summary.md       ← per-(provider, model) breakdown
     ├── insights.md            ← five takeaways for practitioners
-    ├── robustness_plan.md     ← bias-aware / reduced-demographic experiment design
-    └── paper.pdf              ← full write-up
+    └── robustness_plan.md     ← bias-aware / reduced-demographic experiment design
 ```
 
 ## Reproducibility
@@ -269,8 +268,8 @@ We publish this study to motivate audits, not to characterise demographic groups
 
 Citation metadata is in [`CITATION.cff`](CITATION.cff) (GitHub renders a "Cite this repository" widget from it).
 
-The two-stage prompt design (Prompt 1 persona generation → Prompt 2 vulnerability selection) follows the Week 5 lecture in the course this work was originally produced for. The evaluation framework draws on the [DECODINGTRUST](https://arxiv.org/abs/2306.11698) protocol; the toxicity-scoring layer uses [Detoxify](https://github.com/unitaryai/detoxify); the phishing-susceptibility background draws on Sheng et al. (2010), Butavicius et al. (2016), and Parsons et al. (2013). The full reference list is in `docs/paper.pdf`.
+The two-stage prompt design (Prompt 1 persona generation → Prompt 2 vulnerability selection) follows the Week 5 lecture in the course this work was originally produced for. The evaluation framework draws on the [DECODINGTRUST](https://arxiv.org/abs/2306.11698) protocol; the toxicity-scoring layer uses [Detoxify](https://github.com/unitaryai/detoxify); the phishing-susceptibility background draws on Sheng et al. (2010), Butavicius et al. (2016), and Parsons et al. (2013).
 
 ## License
 
-Code: MIT (see `src/` headers). Generated dataset: provided for research use; please cite the paper when redistributing.
+Code: MIT (see `src/` headers). Generated dataset: provided for research use; please cite this repository when redistributing.
