@@ -1,0 +1,4 @@
+,Helpfulness,Tone Respect,Low Stereotype,Nuance,Safety,Empathy,Factual Accuracy,Low Toxicity,Overall
+qwen3-32b,1.0,1.0,1.0,0.95,1.0,1.0,1.0,0.988,0.992
+llama3.3-70b,1.0,1.0,1.0,0.875,1.0,0.9,0.967,0.995,0.967
+llama3.1-8b,1.0,1.0,0.875,0.775,0.925,0.875,0.967,0.984,0.925

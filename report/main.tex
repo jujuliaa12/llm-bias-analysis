@@ -1,0 +1,305 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{amsmath}
+\usepackage{float}
+\usepackage{caption}
+\usepackage[colorlinks=true, allcolors=blue]{hyperref}
+\usepackage{enumitem}
+\usepackage{multirow}
+
+\title{Evaluating Bias, Trustworthiness and Fairness of Open-Source LLMs in Phishing Susceptibility Assessment}
+\author{[Student ID] [Surname]}
+\date{}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+This study investigates whether open-source Large Language Models (LLMs) exhibit systematic demographic biases when generating personas and assessing their vulnerability to phishing attacks. Following the DECODINGTRUST framework \cite{wang2023decodingtrust}, we evaluate 14 models across 5 inference providers using a two-stage prompt methodology adapted from the course lecture materials. Our dataset of 855 persona records from 285 experimental runs reveals significant gender bias ($\chi^2 = 130.34$, $p < 0.001$), age bias ($t = -7.22$, $p < 0.001$, Cohen's $d = -0.55$), and occupational bias across multiple dimensions. Non-binary personas were selected as phishing-vulnerable at a rate of 69.3\% (versus the expected 33.3\%), and younger individuals and those in non-technical fields were consistently over-represented. These findings demonstrate that LLM bias in phishing contexts is implicit rather than linguistic, and highlight the need for bias auditing before deploying LLMs in security-sensitive applications.
+\end{abstract}
+
+% ============================================================
+\section{Introduction}
+% ============================================================
+
+Large Language Models such as GPT, LLaMA, Mistral, and Gemma have shown impressive performance across many natural language tasks. However, when these models are used in sensitive areas---like assessing who might be vulnerable to phishing attacks---there is a real risk that they could produce biased or stereotypical outputs \cite{gallegos2024bias, navigli2023biases}. This is particularly concerning because phishing is already a domain where stereotypes about certain demographic groups exist in public perception, and LLMs trained on internet-scale data may absorb and amplify these stereotypes.
+
+Recent research has shown that LLM biases can appear in unexpected ways. For example, \cite{park2024autism} found that models can paradoxically acknowledge bias while simultaneously perpetuating it. In the phishing domain specifically, studies have identified that vulnerability is influenced by factors like age \cite{sheng2010who, butavicius2016breaching}, digital literacy \cite{parsons2013phishing}, personality traits, and prior experience with scams. The question this study explores is whether LLMs, when asked to reason about these factors, fall back on stereotypes rather than nuanced reasoning.
+
+Our research question is: \textbf{Do open-source LLMs exhibit systematic bias when generating personas and assessing their vulnerability to phishing attacks?} We examine whether models disproportionately associate certain genders, ages, education levels, occupations, or geographic locations with phishing susceptibility.
+
+To investigate this, we follow the DECODINGTRUST framework \cite{wang2023decodingtrust}, which provides a methodology for evaluating LLM trustworthiness across dimensions including fairness, stereotype bias, and machine ethics. We adapt this framework to the phishing context using a two-stage prompt design from the Week 5 lecture: first asking models to generate diverse personas, then asking which persona is most vulnerable to phishing. By repeating this across 14 models from 5 providers, we build a dataset large enough for rigorous statistical analysis.
+
+This study contributes: (1) a multi-provider empirical evaluation with 855 persona samples, (2) statistical evidence of significant demographic biases in vulnerability assessment, and (3) practical recommendations for mitigating these biases.
+
+% ============================================================
+\section{Literature Review}
+% ============================================================
+
+The DECODINGTRUST framework \cite{wang2023decodingtrust} evaluates GPT models across seven trustworthiness dimensions---toxicity, stereotype bias, adversarial robustness, out-of-distribution robustness, privacy, machine ethics, and fairness---and demonstrated that even GPT-4 shows concerning behaviours. This framework was extended by \cite{sun2024trustllm} (TrustLLM) to open-source models and by \cite{huang2023trustgpt} (TrustGPT) with a focus on toxicity and value alignment. Together, these works establish that LLM trustworthiness is multi-dimensional: a model that performs well on one dimension can still fail on another.
+
+On the bias side, \cite{gallegos2024bias} provide a comprehensive survey showing that LLM biases originate from training data, model architecture, and fine-tuning, manifesting as stereotypes and quality-of-service disparities. \cite{navigli2023biases} trace these biases to web corpora that encode historical stereotypes. \cite{blodgett2020language} make the important argument that bias research should focus on concrete harms to affected communities, not just abstract metrics---which is why we focus specifically on the cybersecurity implications of bias. For measurement, \cite{gehman2020realtoxicityprompts} developed RealToxicityPrompts for toxicity evaluation, and \cite{nadeem2021stereoset} created StereoSet for measuring stereotypical associations.
+
+In the phishing domain, \cite{sheng2010who} found that women and younger adults (18--25) are more susceptible, while education about phishing reduces susceptibility. \cite{butavicius2016breaching} showed that Big Five personality traits (especially agreeableness and neuroticism) predict susceptibility alongside age. \cite{parsons2013phishing} demonstrated that digital literacy and prior scam experience matter more than demographics alone. These findings are important context: if LLMs simply associate vulnerability with demographics (like gender or age) without considering contextual factors, they are producing stereotypical rather than evidence-based assessments.
+
+Finally, \cite{park2023generative} showed that LLM-generated agents can simulate believable human behaviour with personality-consistent actions, validating persona generation as a methodological tool. We leverage this approach to surface LLM biases by asking models to create diverse personas and then assess their phishing vulnerability.
+
+However, a clear gap exists in the current literature. Phishing susceptibility research \cite{sheng2010who, butavicius2016breaching, parsons2013phishing} has focused on \textit{human} vulnerability, while LLM bias research \cite{gallegos2024bias, navigli2023biases} has examined generic fairness benchmarks. No existing study, to our knowledge, has systematically evaluated whether LLMs reproduce or amplify demographic stereotypes specifically when reasoning about phishing vulnerability. This study fills that gap by combining the DECODINGTRUST evaluation paradigm \cite{wang2023decodingtrust} with phishing-specific demographic analysis, using the persona generation methodology validated by \cite{park2023generative}.
+
+% ============================================================
+\section{Methodology}
+% ============================================================
+
+\subsection{Experimental Design}
+
+Our experiment follows a two-stage prompt design from the Week 5 lecture materials. Each run consists of:
+
+\begin{enumerate}[nosep]
+    \item \textbf{Prompt 1 (Persona Generation):} The LLM generates three diverse personas with specified attributes---name, age, gender, educational qualification, personality traits, devices and technologies used, work experience, domain of work, and country. The prompt enforces diversity across ethnicities, genders, age groups, occupations, and regions.
+    \item \textbf{Prompt 2 (Vulnerability Assessment):} Using the generated personas as context (multi-turn conversation), the LLM selects which persona is most vulnerable to phishing and explains why, optionally updating the chosen persona's description.
+\end{enumerate}
+
+The choice of three personas per run creates a forced-choice scenario where the model must select exactly one as vulnerable, making implicit preferences observable. Each model was run a minimum of 20 times (with most achieving 22--25 runs) to ensure statistical stability---following the course guideline of ``at least 10 times per prompt'' while exceeding the minimum to improve power. Although the personas are generated dynamically rather than from fixed templates, the prompt constraints enforce diversity across all demographic attributes. This follows the DECODINGTRUST paradigm of systematically probing bias through controlled generation and repeated black-box querying \cite{wang2023decodingtrust}, approximating controlled conditions while preserving how LLMs naturally represent human diversity.
+
+\subsection{Model Selection}
+
+We selected 14 open-source models across 5 inference providers (Table~\ref{tab:models}), prioritising: (1) open-source availability, (2) diversity in model families (Meta LLaMA, Mistral, Google Gemma, Alibaba Qwen, DeepSeek), (3) variation in scale (4B to 235B parameters), and (4) free-tier API accessibility. All providers use OpenAI-compatible APIs, enabling a unified collection pipeline.
+
+\begin{table}[H]
+\centering
+\caption{Models and providers used in the evaluation.}
+\label{tab:models}
+\small
+\begin{tabular}{llll}
+\toprule
+\textbf{Provider} & \textbf{Model} & \textbf{Model ID} & \textbf{Runs} \\
+\midrule
+\multirow{3}{*}{Groq} & Llama 3.1 8B & llama-3.1-8b-instant & 25 \\
+ & Llama 3.3 70B & llama-3.3-70b-versatile & 25 \\
+ & Llama 4 Scout & llama-4-scout-17b-16e & 25 \\
+\midrule
+\multirow{3}{*}{Mistral AI} & Mistral Small & mistral-small-latest & 25 \\
+ & Mistral Nemo & open-mistral-nemo & 25 \\
+ & Ministral 8B & ministral-8b-latest & 25 \\
+\midrule
+\multirow{3}{*}{Google AI} & Gemma 3 4B & gemma-3-4b-it & 24 \\
+ & Gemma 3 12B & gemma-3-12b-it & 20 \\
+ & Gemma 3 27B & gemma-3-27b-it & 22 \\
+\midrule
+\multirow{3}{*}{SambaNova} & Llama 3.3 70B & Meta-Llama-3.3-70B & 7 \\
+ & DeepSeek V3 & DeepSeek-V3-0324 & 9 \\
+ & Llama 4 Maverick & Llama-4-Maverick-17B & 9 \\
+\midrule
+\multirow{2}{*}{Cerebras} & Llama 3.1 8B & llama3.1-8b & 22 \\
+ & Qwen3 235B & qwen-3-235b-a22b & 22 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Data Collection and Parsing}
+
+Generation parameters were held constant: temperature = 0.7 (chosen to balance output diversity with coherence---lower values would produce near-identical personas across runs, while higher values risk incoherent outputs; this follows \cite{wang2023decodingtrust}'s sampling approach), top\_p = 0.9, max\_tokens = 2048. The pipeline includes automatic retry with exponential backoff and incremental saving for resume support. A total of 285 workflows produced 855 persona records. SambaNova achieved fewer runs (7--9 per model) due to rate limiting on the free tier.
+
+Raw LLM responses were parsed into structured records using Mistral Small at temperature = 0.0 for deterministic extraction. Each persona's attributes were extracted into JSON format and converted to a tabular dataset with columns matching the format from the Week 5 lecture slides (p.151).
+
+\subsection{Evaluation Metrics}
+
+Following the course analysis guidelines (Week 5 slides, p.152):
+\begin{itemize}[nosep]
+    \item \textbf{Chi-Square Test:} Gender and education independence from vulnerability \cite{sheng2010who}
+    \item \textbf{Welch's t-test:} Age and experience differences between groups \cite{butavicius2016breaching}
+    \item \textbf{Fisher's Exact Test:} Domain-of-work and location associations
+    \item \textbf{Detoxify:} Toxicity scoring of vulnerability reasoning \cite{gehman2020realtoxicityprompts}
+    \item \textbf{Qualitative Analysis:} Thematic coding of a random 25\% sample
+\end{itemize}
+
+% ============================================================
+\section{Results}
+% ============================================================
+
+\subsection{Dataset Overview}
+
+The dataset contains 855 persona records from 14 model-provider configurations across 5 providers ($n_{\text{vulnerable}} = 285$, 33.3\% base rate). Table~\ref{tab:demographics} summarises the demographic distribution.
+
+\begin{table}[H]
+\centering
+\caption{Demographic distribution of generated personas.}
+\label{tab:demographics}
+\small
+\begin{tabular}{lrr}
+\toprule
+\textbf{Attribute} & \textbf{All Personas} & \textbf{Vulnerable Only} \\
+\midrule
+\textit{Gender} & & \\
+\quad Female & 391 (45.7\%) & 112 (39.3\%) \\
+\quad Male & 277 (32.4\%) & 51 (17.9\%) \\
+\quad Non-binary & 163 (19.1\%) & 113 (39.6\%) \\
+\quad Other & 24 (2.8\%) & 9 (3.2\%) \\
+\midrule
+\textit{Mean Age} & 32.5 ($\pm$10.3) & 28.7 ($\pm$11.7) \\
+\midrule
+\textit{Mean Experience (years)} & 8.6 ($\pm$7.8) & 6.4 ($\pm$8.6) \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Gender Bias (Chi-Square Test)}
+
+A chi-square test of independence ($n = 855$) was conducted. All expected cell frequencies exceeded 5, satisfying the test's assumptions. The result reveals a highly significant association: $\chi^2 = 130.34$, $df = 6$, $p < 0.001$. The null hypothesis of independence is rejected. Female personas had a vulnerability rate of 28.6\%, Male only 18.4\%, but Non-binary personas were selected at 69.3\%---more than double the expected base rate. This is a striking finding: LLMs appear to systematically associate non-binary gender identity with increased phishing vulnerability, which is not supported by any phishing susceptibility research we reviewed.
+
+Per-model analysis shows this is not uniform. Gemma 3 4B selected females as vulnerable in all 24 runs (100\%). Llama 4 Scout selected non-binary exclusively in all 25 runs. Ministral 8B showed the opposite pattern, predominantly selecting males (18/25 = 72\%). This variation across models suggests the bias stems from differences in training data and alignment procedures rather than being inherent to the task.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\textwidth]{figures/fig01_gender_bias.png}
+    \caption{Gender vulnerability rates with expected 33.3\% baseline (left: counts; right: rates).}
+    \label{fig:gender}
+\end{figure}
+
+\subsection{Age Bias (t-test)}
+
+Vulnerable personas were significantly younger: $M = 28.7$ ($SD = 11.7$) versus $M = 34.4$ ($SD = 8.9$) for non-vulnerable; Welch's $t = -7.22$, $p < 0.001$, Cohen's $d = -0.55$ (medium effect). This partially aligns with \cite{sheng2010who}, who found younger adults more susceptible, but it also contradicts the widespread public perception that elderly people are the primary phishing targets. It seems LLMs have learned a more ``research-aligned'' but still stereotypical view of age-based vulnerability.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\textwidth]{figures/fig02_age_bias.png}
+    \caption{Age distribution by vulnerability status (left: histogram; right: box plot).}
+    \label{fig:age}
+\end{figure}
+
+\subsection{Domain of Work Bias (Fisher's Exact Test)}
+
+Fisher's exact tests were conducted for each domain with $n \geq 5$ personas. We note that running multiple Fisher tests increases the risk of Type I errors; we report unadjusted $p$-values and interpret results conservatively, focusing on patterns rather than individual significance. Arts and creative fields had significantly higher vulnerability rates, while technical domains (IT, Engineering) were under-represented among vulnerable selections. This reflects an assumption that people in non-technical jobs are less digitally literate and therefore more susceptible---a simplification that \cite{parsons2013phishing} would challenge, since susceptibility depends on training and experience, not just occupation.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\textwidth]{figures/fig03_domain_bias.png}
+    \caption{Phishing vulnerability rate by domain of work (top 15) with 33.3\% baseline.}
+    \label{fig:domain}
+\end{figure}
+
+\subsection{Cross-Model Comparison}
+
+Figure~\ref{fig:cross} reveals how different models exhibit different bias patterns. The key observations are:
+
+\begin{itemize}[nosep]
+    \item \textbf{Google Gemma models} consistently favoured selecting female personas as vulnerable (Gemma 3 4B: 24/24 female).
+    \item \textbf{Llama 4 Scout} (Groq) exclusively chose non-binary personas in all 25 runs.
+    \item \textbf{SambaNova models} predominantly chose non-binary personas (22/25 selections).
+    \item \textbf{Ministral 8B} (Mistral) uniquely favoured male personas (18/25).
+    \item \textbf{Mistral Nemo} was the most balanced model, splitting fairly evenly between female (12) and male (11).
+\end{itemize}
+
+These differences are important because they show that bias is not a fixed property of ``LLMs in general'' but varies significantly based on the specific model architecture and training process. This has practical implications: organisations choosing an LLM for security applications should evaluate bias on a per-model basis.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\textwidth]{figures/fig06_cross_model.png}
+    \caption{Vulnerable persona count by model and gender (left); mean age comparison (right).}
+    \label{fig:cross}
+\end{figure}
+
+\subsection{Additional Demographic Findings}
+
+Beyond the core analyses, we examined several additional dimensions:
+
+\textbf{Experience ($t = -5.68$, $p < 0.001$, $d = -0.42$):} Vulnerable personas had significantly fewer years of experience ($M = 6.4$, $SD = 8.6$) compared to non-vulnerable ($M = 9.8$, $SD = 7.1$), reinforcing the age-inexperience association.
+
+\textbf{Education ($\chi^2 = 402.91$, $p < 0.001$):} Lower educational attainment was significantly over-represented among vulnerable selections. Personas with high school diplomas and pursuing bachelor's degrees were chosen more frequently, while those with postgraduate qualifications were under-represented.
+
+\textbf{Location:} Personas from India (44), Mexico (34), Brazil (28), and Nigeria (19) were the most frequently selected as vulnerable. This over-representation of developing nations raises concerns about geographic stereotyping in LLM outputs.
+
+\textbf{Personality:} Traits like ``trusting,'' ``naive,'' ``curious,'' and ``impulsive'' were disproportionately assigned to vulnerable personas, while ``analytical,'' ``cautious,'' and ``detail-oriented'' appeared more often for non-vulnerable ones. While \cite{butavicius2016breaching} did find personality correlates with phishing susceptibility, the LLMs appear to rely on these trait-stereotypes more heavily than the evidence warrants.
+
+\textbf{Toxicity (Detoxify):} Scores were uniformly low across all models (mean = 0.0016, max = 0.0844). This is an important finding: the bias we observe is \textit{implicit}---it shows up in which personas are chosen as vulnerable, not in the language used to describe them. The models are not using toxic or derogatory language; the bias is structural.
+
+\subsection{Qualitative Analysis (25\% Sample)}
+
+Following the course guidelines, a random 25\% sample of vulnerable selections ($n = 71$) was qualitatively coded for reasoning patterns. The most frequently cited vulnerability factors were:
+
+\begin{itemize}[nosep]
+    \item \textbf{Technology-related:} Limited digital skills, unfamiliarity with cybersecurity tools
+    \item \textbf{Experience-related:} Professional inexperience, entry-level positions
+    \item \textbf{Personality-related:} Trusting nature, curiosity, impulsiveness
+    \item \textbf{Age-related:} Younger age linked to inexperience
+    \item \textbf{Education-related:} Lower educational attainment
+\end{itemize}
+
+An interesting finding from the qualitative analysis is that gender was almost never explicitly mentioned in the vulnerability reasoning, despite being the strongest statistical predictor. This suggests the gender bias operates through correlated attributes---for example, the model might associate certain personality traits or occupations with specific genders, and then select based on those traits rather than gender directly.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\textwidth]{figures/fig09_qualitative_reasons.png}
+    \caption{Frequency of vulnerability reasoning categories in the 25\% qualitative sample.}
+    \label{fig:qualitative}
+\end{figure}
+
+% ============================================================
+\section{Discussion}
+% ============================================================
+
+\subsection{Key Findings}
+
+Three main findings stand out. First, \textbf{gender bias is significant and model-dependent}. The chi-square test confirms that vulnerability selection is not independent of gender ($p < 0.001$), but the direction of bias varies: Gemma favours selecting females, Llama 4 Scout and SambaNova favour non-binary, and Ministral 8B favours males. This extends the DECODINGTRUST fairness evaluation \cite{wang2023decodingtrust} to phishing contexts and shows that open-source models exhibit similar demographic biases to the GPT models evaluated in the original study.
+
+Second, \textbf{younger and less experienced personas are consistently selected as more vulnerable}. The medium effect size ($d = -0.55$ for age) indicates this is practically meaningful. While \cite{sheng2010who} did find younger adults more susceptible, the strength of this pattern across all models suggests it reflects stereotypical reasoning rather than nuanced evidence-based assessment.
+
+Third, \textbf{the bias is implicit rather than linguistic}. The toxicity scores are near-zero, and gender is rarely mentioned in reasoning text despite being a strong predictor statistically. This aligns with \cite{navigli2023biases}'s analysis of how training data biases manifest as implicit associations. It also makes the bias harder to detect---surface-level review of model outputs would not reveal it.
+
+\subsection{Alternative Explanations}
+
+It is worth considering whether the observed biases reflect genuine LLM reasoning patterns or could be artefacts of our methodology. First, the persona generation step itself may introduce bias: if Prompt 1 systematically assigns certain personality traits to certain genders (e.g., ``trusting'' to female personas), then Prompt 2's selection may be driven by personality rather than gender directly. Our qualitative analysis supports this interpretation---gender is rarely cited explicitly in the reasoning. Second, the observed patterns could partially reflect what LLMs have learned from correlational patterns in real phishing research (e.g., \cite{sheng2010who}'s finding about younger adults), which would make the bias ``learned from evidence'' rather than purely stereotypical. However, the extreme cases---such as Gemma 3 4B selecting females 100\% of the time and Llama 4 Scout selecting non-binary 100\%---go far beyond what any research evidence would justify, indicating that model-specific biases dominate over evidence-based reasoning. Third, we cannot rule out that prompt wording itself may prime certain responses, a known issue in LLM evaluation \cite{wang2023decodingtrust}. Future work could test alternative prompt formulations to assess robustness.
+
+\subsection{Implications and Proposed Mitigations}
+
+If LLMs are used to generate security risk assessments or design targeted phishing training, these biases could lead to discriminatory profiling and under-protection of groups stereotypically considered ``safe.'' We propose four mitigations:
+
+\begin{enumerate}[nosep]
+    \item \textbf{Bias-aware prompting:} Explicitly instruct models to avoid demographic stereotypes in vulnerability assessments.
+    \item \textbf{Post-hoc statistical auditing:} Run chi-square and t-tests on model outputs before deployment to detect systematic biases.
+    \item \textbf{Evidence-based training data:} Ensure training data reflects phishing research accurately, including findings that contradict common stereotypes.
+    \item \textbf{Human-in-the-loop:} Use LLM assessments as one input among many, not as sole decision-makers.
+\end{enumerate}
+
+% ============================================================
+\section{Limitations}
+\label{sec:limitations}
+% ============================================================
+
+\begin{enumerate}[nosep]
+    \item \textbf{SambaNova rate limiting:} Three models achieved only 7--9 runs due to free-tier rate limits. However, SambaNova accounts for only 8.8\% of workflows, so the impact on aggregate statistics is minimal.
+    \item \textbf{Cerebras model count:} Only 2 models were available on Cerebras' free tier versus 3 from other providers.
+    \item \textbf{Parsing accuracy:} Using an LLM for structured extraction (even at temperature = 0) may introduce parsing errors for some responses.
+    \item \textbf{Prompt sensitivity:} Our results are based on one specific prompt pair. Different formulations could elicit different bias patterns \cite{wang2023decodingtrust}.
+    \item \textbf{Free-tier constraints:} Quantisation or other optimisations on free tiers may affect behaviour versus full-precision models.
+\end{enumerate}
+
+% ============================================================
+\section{Ethical Considerations}
+% ============================================================
+
+This study identifies ethical risks relevant to CLO 3. Our finding that LLMs disproportionately associate non-binary individuals, younger people, and developing-nation personas with phishing vulnerability has real societal implications. If deployed in organisational security systems, such biases could enable discriminatory profiling and reinforce harmful stereotypes \cite{blodgett2020language}. The paradox identified by \cite{park2024autism}---where models simultaneously acknowledge and perpetuate bias---suggests that simple alignment fixes may not be enough.
+
+Model providers have a responsibility to audit for demographic biases before deployment, especially in sensitive domains. The significant variation we found across providers (e.g., Gemma favouring female vulnerability versus Ministral favouring male) shows that training choices have measurable fairness consequences \cite{navigli2023biases}. The bias patterns in this study should motivate improved fairness in LLM development, not be used to argue that certain demographics are inherently more vulnerable.
+
+% ============================================================
+\section{Reproducibility}
+% ============================================================
+
+All materials are provided in the submission: \texttt{config.py} (provider configuration, API keys removed), \texttt{prompts.py} (exact prompts from lectures), \texttt{data\_collection.ipynb} (full pipeline with resume support and retry logic), \texttt{analysis.ipynb} (all statistical tests and 24 visualisations), \texttt{results/dataset.csv} (855-row structured dataset), \texttt{results/raw\_responses.json} (raw LLM outputs), and \texttt{requirements.txt}. To reproduce: install dependencies via \texttt{pip install -r requirements.txt}, add API keys to \texttt{config.py}, and run the two notebooks sequentially. The pipeline is cross-platform (Python 3.10+).
+
+% ============================================================
+\section{Conclusion}
+% ============================================================
+
+This study provides empirical evidence that open-source LLMs exhibit significant demographic biases when assessing phishing vulnerability. Across 14 models and 5 providers, we identified statistically significant biases in gender ($\chi^2 = 130.34$, $p < 0.001$), age ($t = -7.22$, $p < 0.001$), experience ($t = -5.68$, $p < 0.001$), education ($\chi^2 = 402.91$, $p < 0.001$), occupation, and geographic location. These biases are implicit---they manifest through vulnerability selections, not through toxic language---making them particularly concerning for real-world deployment.
+
+Our findings extend LLM trustworthiness research \cite{wang2023decodingtrust, sun2024trustllm} by showing that bias evaluation must be context-specific: a model performing well on general benchmarks may still exhibit significant bias in domain-specific applications. Future work should explore mitigation techniques including bias-aware fine-tuning, constitutional AI approaches, and RLHF with explicit fairness objectives.
+
+% ============================================================
+\bibliographystyle{unsrt}
+\bibliography{references}
+
+\end{document}
