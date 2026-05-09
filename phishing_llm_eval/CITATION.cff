@@ -1,0 +1,23 @@
+cff-version: 1.2.0
+title: "LLM Phishing-Vulnerability Bias Audit"
+message: "If you use this dataset, code, or findings, please cite the accompanying paper (docs/paper.pdf)."
+type: software
+authors:
+  - family-names: "Tseng"
+    given-names: "Author"
+abstract: >-
+  A multi-provider empirical study of demographic bias in open-source LLMs when
+  asked to assess phishing vulnerability. 855 persona records across 14 model-
+  provider configurations from 5 inference providers, evaluated with chi-square,
+  Welch's t-tests, Fisher's exact tests, Detoxify, and qualitative coding. The
+  study finds that bias is implicit (toxicity is near zero) but statistically
+  highly significant under forced-choice probing.
+keywords:
+  - large language models
+  - bias audit
+  - phishing
+  - cybersecurity
+  - DECODINGTRUST
+  - fairness
+  - trustworthy ML
+license: MIT

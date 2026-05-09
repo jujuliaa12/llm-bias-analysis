@@ -1,0 +1,15 @@
+Provider,Model,Runs,Personas,Vuln,Dominant_vuln_gender,F/M/NB/Other,Chi2,p,Age_vuln,Age_non
+cerebras,llama3.1-8b,22,66,22,Non-Binary 14/22 (64%),6/1/14/1,39.3,2.95e-09,22.4,33.0
+cerebras,qwen3-235b,22,66,22,Female 10/22 (45%),10/1/4/7,11.8,3.69e-02,25.7,34.1
+google_ai,gemma-3-12b,20,60,20,Female 15/20 (75%),15/4/1/0,2.8,2.41e-01,39.8,31.3
+google_ai,gemma-3-27b,22,66,22,Female 11/22 (50%),11/2/9/0,12.0,2.47e-03,37.7,35.4
+google_ai,gemma-3-4b,24,72,24,Female 24/24 (100%),24/0/0/0,15.8,6.97e-05,22.0,31.5
+groq,llama-3.1-8b,25,75,25,Non-Binary 10/25 (40%),9/6/10/0,19.3,6.38e-05,22.7,34.1
+groq,llama-3.3-70b,25,75,25,Non-Binary 14/25 (56%),8/3/14/0,10.5,5.13e-03,29.4,34.9
+groq,llama-4-scout,25,75,25,Non-Binary 25/25 (100%),0/0/25/0,75.0,5.18e-17,20.4,35.3
+mistral,ministral-8b,25,75,25,Male 18/25 (72%),1/18/5/1,46.1,5.29e-10,37.1,38.0
+mistral,mistral-nemo,25,75,25,Female 12/25 (48%),12/11/2/0,1.5,4.70e-01,38.3,34.0
+mistral,mistral-small,25,75,25,Female 16/25 (64%),16/2/7/0,18.2,1.11e-04,27.4,36.4
+sambanova,deepseek-v3,9,27,9,Non-Binary 7/9 (78%),0/2/7/0,13.0,1.50e-03,26.0,33.4
+sambanova,llama-3.3-70b,7,21,7,Non-Binary 7/7 (100%),0/0/7/0,21.0,2.75e-05,23.9,34.9
+sambanova,llama-4-maverick,9,27,9,Non-Binary 8/9 (89%),0/1/8/0,19.0,7.49e-05,22.0,35.0

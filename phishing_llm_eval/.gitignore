@@ -25,3 +25,10 @@ Thumbs.db
 # Optional: large raw data — uncomment if too big for git
 # data/raw_responses.json
 # data/parsed_personas.json
+
+# Hugging Face cache (token, downloaded models)
+.cache/huggingface/
+
+# Streamlit runtime
+.streamlit/secrets.toml
+
